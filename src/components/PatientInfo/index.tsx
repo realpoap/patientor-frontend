@@ -7,6 +7,7 @@ import patientService from "../../services/patients";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
+import { Typography, List } from "@mui/material";
 
 
 const PatientInfo = () => {
@@ -36,13 +37,30 @@ const PatientInfo = () => {
 
 	return (
 		<div>
-			<h2>Patient: {patient.name}
+			<Typography variant="h4" component="h2" gutterBottom>{patient.name}
 			{patient.gender === 'male' && <MaleIcon/>}
 			{patient.gender === 'female' && <FemaleIcon/>}
 			{patient.gender === 'other' && <QuestionMarkIcon/>}
-			</h2>
-			<p>ssn: {patient.ssn}</p>
-			<p>occupation: {patient.occupation}</p>
+			</Typography>
+			<Typography variant="body2"><b>ssn:</b> {patient.ssn}</Typography>
+			<Typography variant="body2"><b>occupation:</b> {patient.occupation}</Typography>
+			<Typography variant="h6" component="h4">Entries :
+				{patient.entries?.map(e => (
+					<div>
+						<Typography key={e.id} variant="body2"><b>{e.date}</b> : <i>{e.description}</i></Typography>
+						<List>
+							{e.diagnosisCodes?.map(d => 
+								<Typography 
+								key={`${e.id}-${d}`} 
+								variant="body1">
+									{d}
+								</Typography>)}
+						</List>
+					</div>
+					
+				))}
+				
+			</Typography>
 
 		</div>
 	);

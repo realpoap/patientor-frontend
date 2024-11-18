@@ -66,7 +66,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
         <TableBody>
           {Object.values(patients).map((patient: Patient) => (
             <TableRow key={patient.id}>
-              <TableCell><a>{patient.name}</a></TableCell>
+              <TableCell><a href={`/patient/${patient.id}`}>{patient.name}</a></TableCell>
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
               <TableCell>
