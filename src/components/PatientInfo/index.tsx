@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
-import { Patient } from "../../types";
+import { Diagnosis, Patient } from "../../types";
 import { useEffect, useState } from "react";
 
 import patientService from "../../services/patients";
+import { getDiagnoses } from "../../services/diagnoses";
 
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import MaleIcon from '@mui/icons-material/Male';
@@ -12,10 +13,12 @@ import { Typography, List } from "@mui/material";
 
 const PatientInfo = () => {
 	const [patient, setPatient] = useState<Patient>();
+	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>();
 	const routeID = useParams().id;
 
 	useEffect(()=> {
 		void findPatient();
+		void getAllDiagnoses();
 		//console.log(patient);
 	}, []);
 
@@ -29,6 +32,14 @@ const PatientInfo = () => {
 			throw new TypeError('No patient found');
 		}
 		setPatient(object);
+	};
+
+	const getAllDiagnoses = async () => {
+		const object = await getDiagnoses();
+		if (object === undefined) {
+			throw new TypeError('No diagnoses found.');
+		}
+		setDiagnoses(object);
 	};
 	
 	if (patient === undefined) {
@@ -49,12 +60,17 @@ const PatientInfo = () => {
 					<div>
 						<Typography key={e.id} variant="body2"><b>{e.date}</b> : <i>{e.description}</i></Typography>
 						<List>
-							{e.diagnosisCodes?.map(d => 
+							{e.diagnosisCodes?.map(d => {
+								const diagnosis = diagnoses?.find(i => i.code === d);
+								return (
 								<Typography 
 								key={`${e.id}-${d}`} 
 								variant="body1">
-									{d}
-								</Typography>)}
+									{d} ({diagnosis?.name})
+								</Typography>
+								);
+							})
+							}
 						</List>
 					</div>
 					
