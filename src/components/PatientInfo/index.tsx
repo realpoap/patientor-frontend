@@ -1,24 +1,26 @@
 import { useParams } from "react-router-dom";
-import { Diagnosis, Patient } from "../../types";
+import { Patient } from "../../types";
 import { useEffect, useState } from "react";
+import { Typography} from "@mui/material";
 
 import patientService from "../../services/patients";
-import { getDiagnoses } from "../../services/diagnoses";
+import Diagnoses from "./Entries/Diagnoses";
 
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
-import { Typography, List } from "@mui/material";
+import HospitalEntry from "./Entries/HospitalEntry";
+import HealthCheckEntry from "./Entries/HealthCheckEntry";
+import OccupationnalEntry from "./Entries/Occupationnal";
 
 
 const PatientInfo = () => {
 	const [patient, setPatient] = useState<Patient>();
-	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>();
+
 	const routeID = useParams().id;
 
 	useEffect(()=> {
 		void findPatient();
-		void getAllDiagnoses();
 		//console.log(patient);
 	}, []);
 
@@ -34,13 +36,7 @@ const PatientInfo = () => {
 		setPatient(object);
 	};
 
-	const getAllDiagnoses = async () => {
-		const object = await getDiagnoses();
-		if (object === undefined) {
-			throw new TypeError('No diagnoses found.');
-		}
-		setDiagnoses(object);
-	};
+
 	
 	if (patient === undefined) {
 		return <div> loading...</div>;
@@ -56,25 +52,41 @@ const PatientInfo = () => {
 			<Typography variant="body2"><b>ssn:</b> {patient.ssn}</Typography>
 			<Typography variant="body2"><b>occupation:</b> {patient.occupation}</Typography>
 			<Typography variant="h6" component="h4">Entries :
-				{patient.entries?.map(e => (
-					<div>
-						<Typography key={e.id} variant="body2"><b>{e.date}</b> : <i>{e.description}</i></Typography>
-						<List>
-							{e.diagnosisCodes?.map(d => {
-								const diagnosis = diagnoses?.find(i => i.code === d);
-								return (
-								<Typography 
-								key={`${e.id}-${d}`} 
-								variant="body1">
-									{d} ({diagnosis?.name})
-								</Typography>
-								);
-							})
-							}
-						</List>
-					</div>
-					
-				))}
+				<>
+				{patient.entries?.map(entry => 
+					{switch (entry.type) {
+						case 'OccupationalHealthcare':
+							return <OccupationnalEntry
+												key={entry.id}
+												date={entry.date}
+												description={entry.description}
+												specialist={entry.specialist}
+												employerName={entry.employerName}
+												sickLeave={entry.sickLeave}
+											/>;
+						case 'HealthCheck':
+							return <HealthCheckEntry
+												key={entry.id}
+												date={entry.date}
+												description={entry.description}
+												specialist={entry.specialist}
+												healthCheckRating={entry.healthCheckRating}
+											/>;
+						case 'Hospital':
+							return <HospitalEntry
+												key={entry.id}
+												date={entry.date}
+												discharge={entry.discharge}
+												description={entry.description}
+												diagnoses={entry.diagnosisCodes}
+												specialist={entry.specialist}
+											/>;
+						default:
+							break;
+					}
+				}
+				)}
+				</>
 				
 			</Typography>
 
